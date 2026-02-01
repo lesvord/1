@@ -37,5 +37,9 @@ def format_help(lines: list[str]) -> str:
     return "\n".join(lines)
 
 
+def format_help_section(title: str, lines: list[str]) -> str:
+    return f"{title}:\n" + "\n".join(f"- {line}" for line in lines)
+
+
 def format_explore_prompt() -> str:
     return "Ты выходишь в Зону. Куда направимся?"

@@ -28,3 +28,14 @@ def raid_inline_keyboard() -> InlineKeyboardMarkup:
             [InlineKeyboardButton(text="Вернуться", callback_data="back_to_menu")],
         ]
     )
+
+
+def help_inline_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Правила", callback_data="help_rules")],
+            [InlineKeyboardButton(text="FAQ", callback_data="help_faq")],
+            [InlineKeyboardButton(text="Подсказки", callback_data="help_tips")],
+            [InlineKeyboardButton(text="Вернуться", callback_data="back_to_menu")],
+        ]
+    )

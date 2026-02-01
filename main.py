@@ -6,6 +6,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery, Message
 
+from app.services import help as help_service
 from app.services import menu as menu_service
 from app.ui import keyboards, messages
 
@@ -52,7 +53,10 @@ async def show_faction(message: Message) -> None:
 
 
 async def show_help(message: Message) -> None:
-    await message.answer(messages.format_help(menu_service.HELP_LINES))
+    await message.answer(
+        messages.format_help(help_service.HELP_OVERVIEW_LINES),
+        reply_markup=keyboards.help_inline_keyboard(),
+    )
 
 
 async def on_menu_choice(message: Message) -> None:
@@ -81,13 +85,21 @@ async def on_menu_choice(message: Message) -> None:
 
 async def handle_callback(callback: CallbackQuery) -> None:
     data = callback.data or ""
-    result = menu_service.resolve_callback(data)
-    if result.action == "menu":
+    if data in help_service.HELP_SECTIONS:
+        section = help_service.HELP_SECTIONS[data]
         if callback.message:
-            await send_menu(callback.message)
+            await callback.message.answer(
+                messages.format_help_section(section["title"], section["lines"]),
+                reply_markup=keyboards.help_inline_keyboard(),
+            )
     else:
-        if callback.message and result.text:
-            await callback.message.answer(result.text)
+        result = menu_service.resolve_callback(data)
+        if result.action == "menu":
+            if callback.message:
+                await send_menu(callback.message)
+        else:
+            if callback.message and result.text:
+                await callback.message.answer(result.text)
     await callback.answer()
 
 
