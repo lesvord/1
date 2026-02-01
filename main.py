@@ -51,7 +51,7 @@ async def show_inventory(message: Message) -> None:
 async def show_locations(message: Message) -> None:
     await message.answer(
         messages.format_locations(explore_service.get_locations()),
-        reply_markup=keyboards.explore_inline_keyboard(),
+        reply_markup=keyboards.explore_inline_keyboard(explore_service.get_locations()),
     )
 
 
@@ -86,7 +86,7 @@ async def on_menu_choice(message: Message) -> None:
     elif action == "explore":
         await message.answer(
             messages.format_explore_prompt(),
-            reply_markup=keyboards.explore_inline_keyboard(),
+            reply_markup=keyboards.explore_inline_keyboard(explore_service.get_locations()),
         )
     elif action == "locations":
         await show_locations(message)
@@ -122,7 +122,7 @@ async def handle_callback(callback: CallbackQuery) -> None:
 
     user_id = callback.from_user.id
     handlers = (
-        explore_service.handle_callback,
+        lambda payload: explore_service.handle_callback(payload, user_id),
         lambda payload: profile_service.handle_callback(payload, user_id),
         lambda payload: inventory_service.handle_callback(payload, user_id),
         lambda payload: faction_service.handle_callback(payload, user_id),
@@ -132,7 +132,16 @@ async def handle_callback(callback: CallbackQuery) -> None:
         result = handler(data)
         if result:
             if callback.message:
-                await callback.message.answer(result)
+                if isinstance(result, dict):
+                    event_text = messages.format_explore_event(result["event"])
+                    intro = result.get("message")
+                    text = f"{intro}\n\n{event_text}" if intro else event_text
+                    await callback.message.answer(
+                        text,
+                        reply_markup=keyboards.explore_event_keyboard(result["options"]),
+                    )
+                else:
+                    await callback.message.answer(result)
             await callback.answer()
             return
 
