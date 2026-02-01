@@ -15,11 +15,20 @@ def build_menu_keyboard(buttons: list[str]) -> ReplyKeyboardBuilder:
 def explore_inline_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Проверить аномалию", callback_data="explore_anomaly")],
-            [InlineKeyboardButton(text="Осмотреть окрестности", callback_data="explore_area")],
+            [InlineKeyboardButton(text="Начать вылазку", callback_data="explore_start")],
             [InlineKeyboardButton(text="Вернуться", callback_data=menu_service.BACK_TO_MENU)],
         ]
     )
+
+
+def explore_event_keyboard(options: list[dict[str, str]]) -> InlineKeyboardMarkup:
+    buttons: list[list[InlineKeyboardButton]] = []
+    for option in options:
+        callback = option.get("callback") or f"explore_choice_{option['id']}"
+        buttons.append([InlineKeyboardButton(text=option["label"], callback_data=callback)])
+    if not any(option.get("callback") == menu_service.BACK_TO_MENU for option in options):
+        buttons.append([InlineKeyboardButton(text="Вернуться", callback_data=menu_service.BACK_TO_MENU)])
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def profile_inline_keyboard() -> InlineKeyboardMarkup:

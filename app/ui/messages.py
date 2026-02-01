@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from app.services import explore as explore_service
+
 
 def format_main_menu() -> str:
     return "Главное меню:"
@@ -56,3 +58,18 @@ def format_help_section(title: str, lines: list[str]) -> str:
 
 def format_explore_prompt() -> str:
     return "Ты выходишь в Зону. Куда направимся?"
+
+
+def format_explore_event(event: dict[str, object]) -> str:
+    title = event.get("title", "Событие")
+    description = event.get("description", "Вокруг тихо, но что-то происходит.")
+    risk_level = int(event.get("risk_level", 0))
+    risk_label = explore_service.get_risk_label(risk_level)
+    rewards = event.get("rewards", [])
+    reward_text = ", ".join(rewards) if rewards else "неизвестно"
+    return (
+        f"{title}\n"
+        f"{description}\n"
+        f"Риск: {risk_label}\n"
+        f"Награды: {reward_text}"
+    )
